@@ -134,3 +134,34 @@ button.franja { cursor: pointer; }
 @media (max-width: 520px) { .nav a:not(.destacado) { display: none; } .marca { font-size: 1.05rem; } }
 .paginacion { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 .resultado a { color: var(--morado-2); font-weight: 600; text-decoration: none; }
+
+/* Foro */
+.aviso-ok { color: var(--libre); font-weight: 600; margin: 0; }
+.volver-oscuro { display: inline-block; margin-bottom: 8px; font-weight: 500; text-decoration: none; color: var(--morado-2); font-size: .92rem; }
+.lista-temas { list-style: none; margin: 0; padding: 0; display: grid; }
+.lista-temas li + li { border-top: 1px solid var(--line); }
+.tema-fila { display: grid; gap: 2px; padding: 12px 4px; text-decoration: none; border-radius: 10px; }
+.tema-fila:hover { background: var(--surface-2); }
+.tema-titulo { font-weight: 600; overflow-wrap: anywhere; }
+.tema-meta { font-size: .84rem; color: var(--muted); }
+.etiqueta { display: inline-block; vertical-align: middle; font-family: var(--body); font-size: .7rem; font-weight: 600; letter-spacing: .02em; padding: 2px 8px; border-radius: 999px; background: var(--sin-bg); color: var(--sin); margin-right: 6px; }
+.etiqueta.oro { background: color-mix(in srgb, var(--oro) 20%, var(--surface)); color: color-mix(in srgb, var(--oro) 70%, var(--fg)); }
+.etiqueta.roja { background: var(--ocupado-bg); color: var(--ocupado); }
+.tema-pagina { max-width: 820px; }
+.tema-pagina h1 { overflow-wrap: anywhere; }
+.mensaje { gap: 10px; }
+.mensaje.oculto, .mensaje-mod.oculto { opacity: .7; border-style: dashed; }
+.mensaje-mod { display: grid; gap: 8px; padding: 14px; border: 1px solid var(--line); border-radius: 12px; }
+.firma { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0; font-size: .9rem; }
+.firma span:last-child { color: var(--muted); font-size: .84rem; }
+.cuerpo { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.cuerpo.recorte { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.pie-mensaje, .acciones-mod { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.mini { font: inherit; font-size: .8rem; font-weight: 600; padding: 5px 10px; border-radius: 8px; border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer; text-decoration: none; }
+.mini:hover { color: var(--fg); border-color: var(--muted); }
+.denunciar summary { font-size: .8rem; color: var(--muted); cursor: pointer; padding: 5px 0; }
+.denunciar form { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.denunciar input { font-size: .85rem !important; padding: 6px 10px !important; }
+.caja textarea { resize: vertical; }
+@media (max-width: 520px) { .nav a.nav-foro { display: inline-flex; } .nav a { padding: 8px 10px; } }
+@media (max-width: 400px) { .marca-texto { display: none; } }
