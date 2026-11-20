@@ -1,12 +1,14 @@
-"""Convierte la extracción de Musicofrades (fichas.jsonl) en src/data/bandas.json y supabase/seed_bandas.sql.
+"""Convierte la extracción del directorio (fichas.jsonl) en src/data/bandas.json y supabase/seed_bandas.sql.
 
-Uso: python3 scripts/convertir_musicofrades.py <carpeta_con_fichas.jsonl>
+Uso: python3 scripts/convertir_directorio.py <carpeta_con_fichas.jsonl>
 """
 import json, re, sys
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent.parent
 entrada = Path(sys.argv[1]) / "fichas.jsonl"
+# Escudos propios descargados en public/escudos/<id>.jpg
+ESCUDOS = {p.stem: f"/escudos/{p.name}" for p in (RAIZ / "public/escudos").glob("*.*")}
 
 def campo(f, k):
     v = f.get(k) or {}
@@ -26,7 +28,7 @@ for linea in entrada.read_text().splitlines():
     ano = re.search(r"(1[6-9]\d\d|20\d\d)", campo(f, "año") or "")
     slug = r["url"].rstrip("/").rsplit("/", 1)[-1]
     bandas.append({
-        "id": f"mc-{r['id']}",
+        "id": f"b-{r['id']}",
         "slug": slug,
         "nombre": re.sub(r"[\s\-–]+$", "", campo(f, "nombre") or r["nombre_listado"]),
         "tipo": r["tipo"],
@@ -45,7 +47,7 @@ for linea in entrada.read_text().splitlines():
         "youtube": enlace(f, "youtube", "https://www.youtube.com/"),
         "estado": "Extinta" if (campo(f, "estado") or "").lower().startswith("ext") else "Activa",
         "hermandad": campo(f, "hermandad"),
-        "fuente_url": r["url"],
+        "escudo_url": ESCUDOS.get(str(r["id"])),
     })
 
 bandas.sort(key=lambda b: b["nombre"])
@@ -56,9 +58,9 @@ def sql(v):
     if isinstance(v, int): return str(v)
     return "'" + str(v).replace("'", "''") + "'"
 
-cols = ["slug", "nombre", "tipo", "localidad", "provincia", "telefono", "email", "ano_fundacion", "web", "instagram", "facebook", "youtube", "estado", "hermandad", "fuente_url"]
+cols = ["slug", "nombre", "tipo", "localidad", "provincia", "telefono", "email", "ano_fundacion", "web", "instagram", "facebook", "youtube", "estado", "hermandad", "escudo_url"]
 filas = [f"({', '.join(sql(b[c]) for c in cols)})" for b in bandas]
 (RAIZ / "supabase/seed_bandas.sql").write_text(
-    "-- Bandas importadas de Musicofrades. Ejecutar después de las migraciones.\n"
+    "-- Bandas importadas. Ejecutar después de las migraciones.\n"
     f"insert into bandas ({', '.join(cols)}) values\n" + ",\n".join(filas) + "\non conflict (slug) do nothing;\n")
 print(len(bandas), "bandas")

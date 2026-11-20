@@ -82,6 +82,7 @@ export default async function Panel({ searchParams }: Props) {
             <div className="campos">
               <label>Año de fundación<input name="ano_fundacion" type="number" min={1800} max={2100} defaultValue={banda?.ano_fundacion ?? ""} /></label>
               <label>Página web<input name="web" defaultValue={banda?.web ?? ""} /></label>
+              <label>Escudo (enlace a la imagen)<input name="escudo_url" type="url" placeholder="https://..." defaultValue={banda?.escudo_url ?? ""} /></label>
             </div>
             <div className="campos">
               <label>Instagram<input name="instagram" placeholder="@usuario" defaultValue={banda?.instagram ?? ""} /></label>

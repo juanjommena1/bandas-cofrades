@@ -35,13 +35,13 @@ Abre http://localhost:3000. Sin configurar Supabase, el catálogo usa las bandas
 
 ## Datos de bandas
 
-`src/data/bandas.json` contiene 1.847 bandas (1.665 activas y 182 extintas) tomadas del directorio público de [Musicofrades](https://musicofrades.com/directorio-de-bandas/) el 20/11/2026: nombre, tipo, localidad, provincia, año, estado, hermandad, web y redes. Cada perfil enlaza a su ficha original. Teléfonos y correos no se importan: cada banda los añade al reclamar su perfil.
+`src/data/bandas.json` contiene 1.847 bandas (1.665 activas y 182 extintas) recopiladas de directorios públicos el 20/11/2026: nombre, tipo, localidad, provincia, año, estado, hermandad, web y redes. 48 tienen escudo en `public/escudos/`; el resto muestra sus iniciales hasta que la banda suba el suyo. Teléfonos y correos no se importan: cada banda los añade al reclamar su perfil.
 
 Para actualizarlas:
 
 ```bash
-python3 scripts/extraer_musicofrades.py /tmp/mc   # ~40 min, una petición cada 0,6 s
-python3 scripts/convertir_musicofrades.py /tmp/mc # regenera bandas.json y supabase/seed_bandas.sql
+python3 scripts/extraer_directorio.py /tmp/mc   # ~40 min, una petición cada 0,6 s (uso interno)
+python3 scripts/convertir_directorio.py /tmp/mc # regenera bandas.json y supabase/seed_bandas.sql
 ```
 
 Con Supabase, ejecuta `supabase/seed_bandas.sql` después de las migraciones para cargar las bandas.

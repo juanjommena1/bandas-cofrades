@@ -12,12 +12,25 @@ export function iniciales(nombre: string) {
   return pal.length === 1 ? pal[0]!.slice(0, 2).toUpperCase() : pal.slice(0, 2).map((w) => w[0]!.toUpperCase()).join("");
 }
 
+/** Escudo de la banda o, si no tiene, sus iniciales. */
+export function Escudo({ banda, className = "monograma" }: { banda: Banda; className?: string }) {
+  if (banda.escudo_url) {
+    return (
+      <span className={`${className} con-escudo`}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={banda.escudo_url} alt={`Escudo de ${banda.nombre}`} loading="lazy" />
+      </span>
+    );
+  }
+  return <span className={className} aria-hidden="true">{iniciales(banda.nombre)}</span>;
+}
+
 export default function TarjetaBanda({ banda }: { banda: Banda }) {
   const redes = (["instagram", "facebook", "youtube", "web"] as const).filter((r) => banda[r]);
   return (
     <Link href={`/bandas/${banda.slug}`} className={`tarjeta tipo-${banda.tipo}`}>
       <div className="tarjeta-portada">
-        <span className="monograma">{iniciales(banda.nombre)}</span>
+        <Escudo banda={banda} />
         <span className="chip-tipo">{TIPOS[banda.tipo]}{banda.estado === "Extinta" ? " · Extinta" : ""}</span>
       </div>
       <div className="tarjeta-cuerpo">

@@ -24,8 +24,8 @@ export interface Banda {
   /** "Activa" o "Extinta", según la fuente. */
   estado?: string | null;
   hermandad?: string | null;
-  /** Ficha original de donde se tomaron los datos. */
-  fuente_url?: string | null;
+  /** Ruta o URL de la imagen del escudo. */
+  escudo_url?: string | null;
 }
 
 export interface Disponibilidad {

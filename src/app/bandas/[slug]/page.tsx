@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Calendario from "@/components/Calendario";
 import Icono from "@/components/Icono";
-import { iniciales } from "@/components/TarjetaBanda";
+import { Escudo } from "@/components/TarjetaBanda";
 import { obtenerBanda } from "@/lib/datos";
 import { TIPOS, precioTexto, type Banda } from "@/lib/tipos";
 
@@ -48,7 +48,7 @@ export default async function PerfilBanda({ params }: Props) {
         <div className="wrap">
           <Link className="volver" href="/">← Volver al catálogo</Link>
           <div className="perfil-cabeza">
-            <span className="monograma">{iniciales(banda.nombre)}</span>
+            <Escudo banda={banda} />
             <div>
               <h1>{banda.nombre}</h1>
               <p>{TIPOS[banda.tipo]} · <Icono nombre="pin" tam={15} />{banda.localidad}, {banda.provincia}</p>
@@ -69,12 +69,7 @@ export default async function PerfilBanda({ params }: Props) {
             {banda.descripcion && <p style={{ margin: 0 }}>{banda.descripcion}</p>}
             {banda.hermandad && <p style={{ margin: 0 }}><strong>Hermandad:</strong> {banda.hermandad}</p>}
             {banda.repertorio && <p style={{ margin: 0 }}><strong>Repertorio:</strong> {banda.repertorio}</p>}
-            {banda.fuente_url && (
-              <p className="nota">
-                Datos públicos tomados de <a href={banda.fuente_url} target="_blank" rel="noopener noreferrer">Musicofrades</a>.
-                ¿Es tu banda? Entra en «Soy una banda» para completar o corregir el perfil.
-              </p>
-            )}
+            <p className="nota">¿Es tu banda? Entra en «Soy una banda» para completar o corregir el perfil.</p>
           </section>
           {disponibilidad.length > 0 && (
             <section className="caja">
@@ -91,8 +86,7 @@ export default async function PerfilBanda({ params }: Props) {
           {banda.email && <a className="boton sec" href={`mailto:${banda.email}`}><Icono nombre="correo" />{banda.email}</a>}
           {!banda.telefono && !banda.email && (
             <p className="nota">
-              Esta banda aún no ha añadido su contacto directo. Puedes escribirle por sus redes
-              {banda.fuente_url && <> o ver su <a href={banda.fuente_url} target="_blank" rel="noopener noreferrer">ficha en Musicofrades</a></>}.
+              Esta banda aún no ha añadido su contacto directo.{redes.length > 0 ? " Puedes escribirle por sus redes." : ""}
             </p>
           )}
           {redes.length > 0 && (
