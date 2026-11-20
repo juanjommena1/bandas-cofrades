@@ -94,14 +94,20 @@ export async function listarBandas(f: FiltrosCatalogo): Promise<Banda[]> {
     bandas = bandasLocales;
   } else {
     const supabase = await crearClienteServidor();
-    let q = supabase.from("bandas").select("*").order("nombre").limit(5000);
-    if (f.provincia) q = q.eq("provincia", f.provincia);
-    if (f.tipo) q = q.eq("tipo", f.tipo);
-    if (!f.extintas) q = q.neq("estado", "Extinta");
-    if (f.q) q = q.or(`nombre.ilike.%${f.q.replace(/[%,()]/g, "")}%,localidad.ilike.%${f.q.replace(/[%,()]/g, "")}%`);
-    const { data, error } = await q;
-    if (error) throw error;
-    bandas = data ?? [];
+    // Supabase devuelve como mucho 1.000 filas por petición: se piden por bloques.
+    const BLOQUE = 1000;
+    bandas = [];
+    for (let desde = 0; desde < 20000; desde += BLOQUE) {
+      let q = supabase.from("bandas").select("*").order("nombre").order("id").range(desde, desde + BLOQUE - 1);
+      if (f.provincia) q = q.eq("provincia", f.provincia);
+      if (f.tipo) q = q.eq("tipo", f.tipo);
+      if (!f.extintas) q = q.neq("estado", "Extinta");
+      if (f.q) q = q.or(`nombre.ilike.%${f.q.replace(/[%,()]/g, "")}%,localidad.ilike.%${f.q.replace(/[%,()]/g, "")}%`);
+      const { data, error } = await q;
+      if (error) throw error;
+      bandas.push(...(data ?? []));
+      if (!data || data.length < BLOQUE) break;
+    }
   }
   const texto = f.q ? normalizar(f.q) : "";
   return bandas

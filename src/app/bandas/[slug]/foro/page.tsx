@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Avisos from "@/components/foro/Avisos";
 import ListaTemas from "@/components/foro/ListaTemas";
-import { NuevoTema } from "@/components/foro/Publicar";
+import { BarraSesion, NuevoTema } from "@/components/foro/Publicar";
 import { obtenerBanda } from "@/lib/datos";
 import { listarTemas, sesionForo } from "@/lib/foro";
 
@@ -27,6 +27,7 @@ export default async function ForoBanda({ params, searchParams }: Props) {
         <Link className="volver-oscuro" href={`/bandas/${slug}`}>← {r.banda.nombre}</Link>
         <h1>Foro de {r.banda.nombre}</h1>
         <p className="lead">Pregunta, comenta o comparte sobre esta banda. Para hablar de otros temas, usa el <Link href="/foro">foro general</Link>.</p>
+        <BarraSesion sesion={sesion} volverA={`/bandas/${slug}/foro`} />
       </div>
       <Avisos error={error} ok={ok} />
       <section className="caja">

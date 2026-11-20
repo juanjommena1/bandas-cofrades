@@ -167,3 +167,9 @@ button.franja { cursor: pointer; }
 .caja textarea { resize: vertical; }
 @media (max-width: 520px) { .nav a.nav-foro { display: inline-flex; } .nav a { padding: 8px 10px; } }
 @media (max-width: 400px) { .marca-texto { display: none; } }
+.barra-sesion { margin-top: 8px; }
+.barra-sesion a, .enlace { color: var(--morado-2); font-weight: 600; }
+.enlace { font: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; }
+.pestanas { display: flex; gap: 4px; padding: 4px; background: var(--surface-2); border-radius: 12px; }
+.pestanas a { flex: 1; white-space: nowrap; text-align: center; padding: 8px 6px; border-radius: 9px; text-decoration: none; font-size: .88rem; font-weight: 600; color: var(--muted); }
+.pestanas a[aria-current="page"] { background: var(--surface); color: var(--fg); box-shadow: var(--sombra); }
