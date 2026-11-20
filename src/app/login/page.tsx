@@ -1,4 +1,4 @@
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { rutaSegura } from "@/lib/foro";
 import { modoDemo } from "@/lib/supabase/config";
@@ -12,6 +12,8 @@ async function enviarEnlace(formData: FormData) {
   if (!email) redirect(`${volver}&error=email`);
   const h = await headers();
   const origen = h.get("origin") ?? `https://${h.get("host")}`;
+  // Recordamos a dónde volver por si el enlace del correo no lo lleva.
+  (await cookies()).set("volver", next, { path: "/", maxAge: 60 * 60, sameSite: "lax", httpOnly: true, secure: true });
   const supabase = await crearClienteServidor();
   const { error } = await supabase.auth.signInWithOtp({
     email,
@@ -39,7 +41,13 @@ export default async function Login({ searchParams }: Props) {
         <form action={enviarEnlace} style={{ display: "grid", gap: 12 }}>
           <input type="hidden" name="next" value={destino} />
           <label>Correo electrónico<input type="email" name="email" required autoComplete="email" /></label>
-          {error && <p className="error">No se pudo enviar el enlace. Revisa el correo e inténtalo de nuevo.</p>}
+          {error && (
+            <p className="error">
+              {error === "enlace"
+                ? "Ese enlace no es válido o ya se usó. Pide uno nuevo y ábrelo una sola vez."
+                : "No se pudo enviar el enlace. Revisa el correo o espera unos minutos e inténtalo de nuevo."}
+            </p>
+          )}
           <button className="boton" type="submit">Enviarme el enlace</button>
         </form>
       )}

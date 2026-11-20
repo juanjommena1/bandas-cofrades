@@ -30,8 +30,9 @@ Abre http://localhost:3000. Sin configurar Supabase, el catálogo usa las bandas
 1. Crea un proyecto gratuito en Supabase.
 2. En el editor SQL, ejecuta en orden los archivos de `supabase/migrations/`.
 3. En *Authentication → URL Configuration*, añade `http://localhost:3000/**` y `https://bandas-cofrades.vercel.app/**` a las URLs de redirección (el `**` permite volver al foro después de entrar).
-4. Copia `.env.example` a `.env.local` y rellena `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` (en *Project Settings → API*).
-5. `npm run dev` y entra en `/panel` para crear tu primera banda.
+4. En *Authentication → Emails*, cambia el enlace de las plantillas **Magic Link** y **Confirm signup** por `{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=email`, para que el enlace funcione aunque se abra desde la app del correo o en otro dispositivo.
+5. Copia `.env.example` a `.env.local` y rellena `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` (en *Project Settings → API*).
+6. `npm run dev` y entra en `/panel` para crear tu primera banda.
 
 ## Datos de bandas
 
