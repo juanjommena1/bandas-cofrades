@@ -43,6 +43,7 @@ export async function guardarPerfil(formData: FormData) {
     descripcion: txt(formData.get("descripcion")),
     ano_fundacion: num(formData.get("ano_fundacion")),
     web: txt(formData.get("web")),
+    escudo_url: txt(formData.get("escudo_url")),
     instagram: txt(formData.get("instagram")),
     facebook: txt(formData.get("facebook")),
     youtube: txt(formData.get("youtube")),

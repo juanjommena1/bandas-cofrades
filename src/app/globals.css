@@ -134,6 +134,8 @@ button.franja { cursor: pointer; }
 @media (max-width: 520px) { .nav a:not(.destacado) { display: none; } .marca { font-size: 1.05rem; } }
 .paginacion { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 .resultado a { color: var(--morado-2); font-weight: 600; text-decoration: none; }
+.con-escudo { padding: 4px; overflow: hidden; }
+.con-escudo img { width: 100%; height: 100%; object-fit: contain; border-radius: 10px; }
 
 /* Foro */
 .aviso-ok { color: var(--libre); font-weight: 600; margin: 0; }
