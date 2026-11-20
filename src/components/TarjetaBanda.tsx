@@ -3,7 +3,10 @@ import { TIPOS, type Banda } from "@/lib/tipos";
 import Icono from "./Icono";
 
 export function iniciales(nombre: string) {
-  const palabras = nombre.replace(/\(.*?\)/g, "").replace(/\b(BCT|AM|de|del|la|las|los|y)\b/gi, "")
+  const palabras = nombre.replace(/\(.*?\)/g, "")
+    .replace(/^(banda de cornetas y tambores|agrupaci[oó]n musical|banda de m[uú]sica|asociaci[oó]n musical|banda municipal de m[uú]sica|banda|BCT|AM)\s+/i, "")
+    .replace(/[^\p{L}\p{N}\s]/gu, " ")
+    .replace(/(^|\s)(de|del|la|las|los|el|y|nuestra|nuestro|señora|ntra|sra|santa|santo|santísimo|santísima|san|maría)(?=\s|$)/gi, " ")
     .split(/\s+/).filter(Boolean);
   const pal = palabras.length ? palabras : nombre.split(/\s+/);
   return pal.length === 1 ? pal[0]!.slice(0, 2).toUpperCase() : pal.slice(0, 2).map((w) => w[0]!.toUpperCase()).join("");
@@ -15,7 +18,7 @@ export default function TarjetaBanda({ banda }: { banda: Banda }) {
     <Link href={`/bandas/${banda.slug}`} className={`tarjeta tipo-${banda.tipo}`}>
       <div className="tarjeta-portada">
         <span className="monograma">{iniciales(banda.nombre)}</span>
-        <span className="chip-tipo">{TIPOS[banda.tipo]}</span>
+        <span className="chip-tipo">{TIPOS[banda.tipo]}{banda.estado === "Extinta" ? " · Extinta" : ""}</span>
       </div>
       <div className="tarjeta-cuerpo">
         <h3>{banda.nombre}</h3>

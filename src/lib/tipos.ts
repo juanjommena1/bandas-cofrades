@@ -21,6 +21,11 @@ export interface Banda {
   instagram: string | null;
   facebook: string | null;
   youtube: string | null;
+  /** "Activa" o "Extinta", según la fuente. */
+  estado?: string | null;
+  hermandad?: string | null;
+  /** Ficha original de donde se tomaron los datos. */
+  fuente_url?: string | null;
 }
 
 export interface Disponibilidad {
@@ -42,8 +47,17 @@ export const FRANJAS: Record<Franja, string> = {
   noche: "Noche",
 };
 
-export const PROVINCIAS = [
+export const PROVINCIAS_ANDALUCIA = [
   "Almería", "Cádiz", "Córdoba", "Granada", "Huelva", "Jaén", "Málaga", "Sevilla",
+];
+
+export const PROVINCIAS = [
+  "Álava", "Albacete", "Alicante", "Almería", "Asturias", "Ávila", "Badajoz", "Barcelona", "Burgos",
+  "Cáceres", "Cádiz", "Cantabria", "Castellón", "Ceuta", "Ciudad Real", "Córdoba", "Cuenca", "Gerona",
+  "Granada", "Guadalajara", "Guipúzcoa", "Huelva", "Huesca", "Islas Baleares", "Jaén", "La Coruña",
+  "La Rioja", "Las Palmas", "León", "Lérida", "Lugo", "Madrid", "Málaga", "Melilla", "Murcia", "Navarra",
+  "Orense", "Palencia", "Pontevedra", "Salamanca", "Santa Cruz de Tenerife", "Segovia", "Sevilla", "Soria",
+  "Tarragona", "Teruel", "Toledo", "Valencia", "Valladolid", "Vizcaya", "Zamora", "Zaragoza",
 ];
 
 /** Días de Semana Santa 2027 (Domingo de Resurrección: 28 de marzo de 2027). */

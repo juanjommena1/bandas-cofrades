@@ -1,4 +1,4 @@
-import { demoBandas, demoDisponibilidad } from "./demo";
+import bandasImportadas from "@/data/bandas.json";
 import { modoDemo } from "./supabase/config";
 import { crearClienteServidor } from "./supabase/server";
 import type { Banda, Disponibilidad, EstadoFranja, Franja, TipoBanda } from "./tipos";
@@ -17,6 +17,9 @@ export interface ResultadoBusqueda {
   estado: EstadoBusqueda;
 }
 
+/** Sin Supabase, el catálogo usa las bandas importadas en src/data/bandas.json. */
+const bandasLocales = bandasImportadas as Banda[];
+
 const ORDEN: Record<EstadoBusqueda, number> = { libre: 0, sin_confirmar: 1, ocupado: 2 };
 
 /** Estado de una banda para una fecha (y franja, si se indica). */
@@ -34,8 +37,8 @@ export async function buscarBandas(f: FiltrosBusqueda): Promise<ResultadoBusqued
   let disp: Disponibilidad[];
 
   if (modoDemo) {
-    bandas = demoBandas;
-    disp = demoDisponibilidad.filter((d) => d.fecha === f.fecha);
+    bandas = bandasLocales;
+    disp = [];
   } else {
     const supabase = await crearClienteServidor();
     let q = supabase.from("bandas").select("*").order("nombre");
@@ -63,9 +66,9 @@ export async function buscarBandas(f: FiltrosBusqueda): Promise<ResultadoBusqued
 
 export async function obtenerBanda(slug: string): Promise<{ banda: Banda; disponibilidad: Disponibilidad[] } | null> {
   if (modoDemo) {
-    const banda = demoBandas.find((b) => b.slug === slug);
+    const banda = bandasLocales.find((b) => b.slug === slug);
     if (!banda) return null;
-    return { banda, disponibilidad: demoDisponibilidad.filter((d) => d.banda_id === banda.id) };
+    return { banda, disponibilidad: [] };
   }
   const supabase = await crearClienteServidor();
   const { data: banda } = await supabase.from("bandas").select("*").eq("slug", slug).maybeSingle();
@@ -78,6 +81,8 @@ export interface FiltrosCatalogo {
   q?: string;
   provincia?: string;
   tipo?: TipoBanda;
+  /** Incluir bandas marcadas como extintas. */
+  extintas?: boolean;
 }
 
 const normalizar = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -86,12 +91,13 @@ const normalizar = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g,
 export async function listarBandas(f: FiltrosCatalogo): Promise<Banda[]> {
   let bandas: Banda[];
   if (modoDemo) {
-    bandas = demoBandas;
+    bandas = bandasLocales;
   } else {
     const supabase = await crearClienteServidor();
-    let q = supabase.from("bandas").select("*").order("nombre").limit(500);
+    let q = supabase.from("bandas").select("*").order("nombre").limit(5000);
     if (f.provincia) q = q.eq("provincia", f.provincia);
     if (f.tipo) q = q.eq("tipo", f.tipo);
+    if (!f.extintas) q = q.neq("estado", "Extinta");
     if (f.q) q = q.or(`nombre.ilike.%${f.q.replace(/[%,()]/g, "")}%,localidad.ilike.%${f.q.replace(/[%,()]/g, "")}%`);
     const { data, error } = await q;
     if (error) throw error;
@@ -100,6 +106,7 @@ export async function listarBandas(f: FiltrosCatalogo): Promise<Banda[]> {
   const texto = f.q ? normalizar(f.q) : "";
   return bandas
     .filter((b) => (!f.provincia || b.provincia === f.provincia) && (!f.tipo || b.tipo === f.tipo))
+    .filter((b) => f.extintas || b.estado !== "Extinta")
     .filter((b) => !texto || normalizar(`${b.nombre} ${b.localidad}`).includes(texto))
     .sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
 }

@@ -28,7 +28,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         </header>
         {modoDemo && (
           <div className="aviso"><div className="wrap">
-            Modo demostración: se muestran <strong>bandas de ejemplo</strong> inventadas.
+            Versión de prueba: catálogo con datos públicos de bandas. El panel para bandas se activará al conectar la base de datos.
           </div></div>
         )}
         <main>{children}</main>

@@ -37,6 +37,7 @@ export default async function PerfilBanda({ params }: Props) {
   const redes = (["instagram", "facebook", "youtube", "web"] as const).filter((x) => banda[x]);
   const stats: [string, string | number | null][] = [
     ["Fundada", banda.ano_fundacion],
+    ["Estado", banda.estado ?? null],
     ["Músicos", banda.musicos],
     ["Precio orientativo", precioTexto(banda as Banda)],
   ];
@@ -66,13 +67,21 @@ export default async function PerfilBanda({ params }: Props) {
               ))}
             </div>
             {banda.descripcion && <p style={{ margin: 0 }}>{banda.descripcion}</p>}
+            {banda.hermandad && <p style={{ margin: 0 }}><strong>Hermandad:</strong> {banda.hermandad}</p>}
             {banda.repertorio && <p style={{ margin: 0 }}><strong>Repertorio:</strong> {banda.repertorio}</p>}
+            {banda.fuente_url && (
+              <p className="nota">
+                Datos públicos tomados de <a href={banda.fuente_url} target="_blank" rel="noopener noreferrer">Musicofrades</a>.
+                ¿Es tu banda? Entra en «Soy una banda» para completar o corregir el perfil.
+              </p>
+            )}
           </section>
-          <section className="caja">
-            <h2>Disponibilidad Semana Santa 2027</h2>
-            <p className="nota">Muy pronto las bandas podrán mantener aquí su calendario al día.</p>
-            <Calendario disponibilidad={disponibilidad} />
-          </section>
+          {disponibilidad.length > 0 && (
+            <section className="caja">
+              <h2>Disponibilidad Semana Santa 2027</h2>
+              <Calendario disponibilidad={disponibilidad} />
+            </section>
+          )}
         </div>
 
         <aside className="caja">
@@ -80,7 +89,12 @@ export default async function PerfilBanda({ params }: Props) {
           {whatsapp && <a className="boton whatsapp" href={whatsapp} target="_blank" rel="noopener noreferrer"><Icono nombre="whatsapp" />Escribir por WhatsApp</a>}
           {banda.telefono && <a className="boton sec" href={`tel:${banda.telefono}`}><Icono nombre="telefono" />{banda.telefono}</a>}
           {banda.email && <a className="boton sec" href={`mailto:${banda.email}`}><Icono nombre="correo" />{banda.email}</a>}
-          {!banda.telefono && !banda.email && <p className="nota">Esta banda aún no ha añadido datos de contacto.</p>}
+          {!banda.telefono && !banda.email && (
+            <p className="nota">
+              Esta banda aún no ha añadido su contacto directo. Puedes escribirle por sus redes
+              {banda.fuente_url && <> o ver su <a href={banda.fuente_url} target="_blank" rel="noopener noreferrer">ficha en Musicofrades</a></>}.
+            </p>
+          )}
           {redes.length > 0 && (
             <>
               <h2>Redes</h2>

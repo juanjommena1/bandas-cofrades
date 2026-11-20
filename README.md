@@ -23,7 +23,7 @@ npm install
 npm run dev
 ```
 
-Abre http://localhost:3000. Sin configurar Supabase, la web funciona en **modo demostración** con bandas de ejemplo inventadas y el panel desactivado.
+Abre http://localhost:3000. Sin configurar Supabase, el catálogo usa las bandas de `src/data/bandas.json` y el panel de bandas está desactivado.
 
 ## Conectar Supabase
 
@@ -32,6 +32,19 @@ Abre http://localhost:3000. Sin configurar Supabase, la web funciona en **modo d
 3. En *Authentication → URL Configuration*, añade `http://localhost:3000/auth/callback` (y la URL de producción) a las URLs de redirección.
 4. Copia `.env.example` a `.env.local` y rellena `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` (en *Project Settings → API*).
 5. `npm run dev` y entra en `/panel` para crear tu primera banda.
+
+## Datos de bandas
+
+`src/data/bandas.json` contiene 1.847 bandas (1.665 activas y 182 extintas) tomadas del directorio público de [Musicofrades](https://musicofrades.com/directorio-de-bandas/) el 20/11/2026: nombre, tipo, localidad, provincia, año, estado, hermandad, web y redes. Cada perfil enlaza a su ficha original. Teléfonos y correos no se importan: cada banda los añade al reclamar su perfil.
+
+Para actualizarlas:
+
+```bash
+python3 scripts/extraer_musicofrades.py /tmp/mc   # ~40 min, una petición cada 0,6 s
+python3 scripts/convertir_musicofrades.py /tmp/mc # regenera bandas.json y supabase/seed_bandas.sql
+```
+
+Con Supabase, ejecuta `supabase/seed_bandas.sql` después de las migraciones para cargar las bandas.
 
 ## Modelo de datos
 
