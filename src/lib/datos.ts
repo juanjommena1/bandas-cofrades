@@ -1,0 +1,75 @@
+import { demoBandas, demoDisponibilidad } from "./demo";
+import { modoDemo } from "./supabase/config";
+import { crearClienteServidor } from "./supabase/server";
+import type { Banda, Disponibilidad, EstadoFranja, Franja, TipoBanda } from "./tipos";
+
+export interface FiltrosBusqueda {
+  fecha: string;
+  franja?: Franja;
+  provincia?: string;
+  tipo?: TipoBanda;
+}
+
+export type EstadoBusqueda = EstadoFranja | "sin_confirmar";
+
+export interface ResultadoBusqueda {
+  banda: Banda;
+  estado: EstadoBusqueda;
+}
+
+const ORDEN: Record<EstadoBusqueda, number> = { libre: 0, sin_confirmar: 1, ocupado: 2 };
+
+/** Estado de una banda para una fecha (y franja, si se indica). */
+export function estadoPara(disp: Disponibilidad[], fecha: string, franja?: Franja): EstadoBusqueda {
+  const delDia = disp.filter((d) => d.fecha === fecha && (!franja || d.franja === franja));
+  if (franja) return delDia[0]?.estado ?? "sin_confirmar";
+  // Sin franja: libre si alguna franja está libre; ocupada si las tres están ocupadas.
+  if (delDia.some((d) => d.estado === "libre")) return "libre";
+  if (delDia.filter((d) => d.estado === "ocupado").length === 3) return "ocupado";
+  return "sin_confirmar";
+}
+
+export async function buscarBandas(f: FiltrosBusqueda): Promise<ResultadoBusqueda[]> {
+  let bandas: Banda[];
+  let disp: Disponibilidad[];
+
+  if (modoDemo) {
+    bandas = demoBandas;
+    disp = demoDisponibilidad.filter((d) => d.fecha === f.fecha);
+  } else {
+    const supabase = await crearClienteServidor();
+    let q = supabase.from("bandas").select("*").order("nombre");
+    if (f.provincia) q = q.eq("provincia", f.provincia);
+    if (f.tipo) q = q.eq("tipo", f.tipo);
+    const { data: b, error } = await q;
+    if (error) throw error;
+    bandas = b ?? [];
+    const ids = bandas.map((x) => x.id);
+    if (ids.length === 0) return [];
+    const { data: d, error: e2 } = await supabase
+      .from("disponibilidad").select("*").eq("fecha", f.fecha).in("banda_id", ids);
+    if (e2) throw e2;
+    disp = d ?? [];
+  }
+
+  return bandas
+    .filter((b) => (!f.provincia || b.provincia === f.provincia) && (!f.tipo || b.tipo === f.tipo))
+    .map((banda) => ({
+      banda,
+      estado: estadoPara(disp.filter((d) => d.banda_id === banda.id), f.fecha, f.franja),
+    }))
+    .sort((a, b) => ORDEN[a.estado] - ORDEN[b.estado] || a.banda.nombre.localeCompare(b.banda.nombre, "es"));
+}
+
+export async function obtenerBanda(slug: string): Promise<{ banda: Banda; disponibilidad: Disponibilidad[] } | null> {
+  if (modoDemo) {
+    const banda = demoBandas.find((b) => b.slug === slug);
+    if (!banda) return null;
+    return { banda, disponibilidad: demoDisponibilidad.filter((d) => d.banda_id === banda.id) };
+  }
+  const supabase = await crearClienteServidor();
+  const { data: banda } = await supabase.from("bandas").select("*").eq("slug", slug).maybeSingle();
+  if (!banda) return null;
+  const { data: disponibilidad } = await supabase.from("disponibilidad").select("*").eq("banda_id", banda.id);
+  return { banda, disponibilidad: disponibilidad ?? [] };
+}

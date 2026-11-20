@@ -1,95 +1,94 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import Link from "next/link";
+import { fechaCorta } from "@/components/Calendario";
+import { buscarBandas, type EstadoBusqueda } from "@/lib/datos";
+import {
+  FRANJAS, PROVINCIAS, SEMANA_SANTA_2027, TIPOS, nombreDia, precioTexto,
+  type Franja, type TipoBanda,
+} from "@/lib/tipos";
 
-export default function Home() {
+const ETIQUETA: Record<EstadoBusqueda, string> = { libre: "Libre", sin_confirmar: "Sin confirmar", ocupado: "Ocupada" };
+
+type Params = Promise<{ fecha?: string; franja?: string; provincia?: string; tipo?: string }>;
+
+export default async function Buscar({ searchParams }: { searchParams: Params }) {
+  const p = await searchParams;
+  const fecha = /^\d{4}-\d{2}-\d{2}$/.test(p.fecha ?? "") ? p.fecha! : "2027-03-25";
+  const franja = p.franja && p.franja in FRANJAS ? (p.franja as Franja) : undefined;
+  const tipo = p.tipo && p.tipo in TIPOS ? (p.tipo as TipoBanda) : undefined;
+  const provincia = p.provincia && PROVINCIAS.includes(p.provincia) ? p.provincia : undefined;
+
+  const resultados = await buscarBandas({ fecha, franja, provincia, tipo });
+  const libres = resultados.filter((r) => r.estado === "libre").length;
+
+  const enlaceDia = (f: string) => {
+    const q = new URLSearchParams({ fecha: f });
+    if (franja) q.set("franja", franja);
+    if (provincia) q.set("provincia", provincia);
+    if (tipo) q.set("tipo", tipo);
+    return `/?${q}`;
+  };
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <>
+      <div>
+        <h1>Encuentra banda para tu salida</h1>
+        <p className="lead">Elige el día y la zona. Verás primero las bandas que han confirmado que tienen ese hueco libre.</p>
+      </div>
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
+      <section className="caja" aria-label="Buscador">
+        <div className="dias" aria-label="Días de Semana Santa 2027">
+          {SEMANA_SANTA_2027.map((d) => (
+            <Link key={d.fecha} href={enlaceDia(d.fecha)} className="dia" aria-current={d.fecha === fecha}>
+              {d.nombre.replace("Domingo de ", "")}<small>{fechaCorta(d.fecha).replace(" 2027", "")}</small>
+            </Link>
+          ))}
         </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+        <form className="campos" action="/">
+          <label>Fecha<input type="date" name="fecha" defaultValue={fecha} /></label>
+          <label>Franja
+            <select name="franja" defaultValue={franja ?? ""}>
+              <option value="">Cualquiera</option>
+              {Object.entries(FRANJAS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+            </select>
+          </label>
+          <label>Provincia
+            <select name="provincia" defaultValue={provincia ?? ""}>
+              <option value="">Todas</option>
+              {PROVINCIAS.map((x) => <option key={x}>{x}</option>)}
+            </select>
+          </label>
+          <label>Tipo de banda
+            <select name="tipo" defaultValue={tipo ?? ""}>
+              <option value="">Todos</option>
+              {Object.entries(TIPOS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+            </select>
+          </label>
+          <button className="boton" type="submit" style={{ alignSelf: "end" }}>Buscar</button>
+        </form>
+      </section>
+
+      <p style={{ fontWeight: 600, margin: 0 }}>
+        {libres} {libres === 1 ? "banda libre" : "bandas libres"} el {nombreDia(fecha)} ({fechaCorta(fecha)})
+        {franja ? `, ${FRANJAS[franja].toLowerCase()}` : ""}
+      </p>
+
+      <div className="lista">
+        {resultados.length === 0 && <div className="vacio">No hay bandas con estos filtros. Prueba otra provincia o tipo.</div>}
+        {resultados.map(({ banda, estado }) => (
+          <Link key={banda.id} className="tarjeta" href={`/bandas/${banda.slug}?fecha=${fecha}`}>
+            <div>
+              <h3>{banda.nombre}</h3>
+              <div className="meta">
+                {banda.localidad} ({banda.provincia})
+                {banda.musicos ? ` · ${banda.musicos} músicos` : ""}
+                {precioTexto(banda) ? ` · ${precioTexto(banda)}` : ""}
+              </div>
+              <span className="etiqueta">{TIPOS[banda.tipo]}</span>
+            </div>
+            <span className={`pill ${estado}`}>{ETIQUETA[estado]}</span>
+          </Link>
+        ))}
+      </div>
+    </>
   );
 }
