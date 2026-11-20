@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Bandas Cofrades
 
-## Getting Started
+Web para que las hermandades encuentren banda libre para su salida procesional. Cada banda (cornetas y tambores, agrupación musical o banda de música) tiene un perfil y un calendario de disponibilidad por día y franja (mañana, tarde, noche).
 
-First, run the development server:
+## Qué hace esta primera versión
+
+- **Catálogo** (`/`): rejilla de bandas con búsqueda por nombre o localidad, provincia y tipo de formación.
+- **Perfil público de banda** (`/bandas/[slug]`): año de fundación, músicos, precio orientativo, repertorio, redes sociales, calendario y botón para escribir por WhatsApp o llamar.
+- **Panel de la banda** (`/panel`): la banda entra con un enlace a su correo, crea o edita su perfil y marca su calendario pulsando cada franja.
+
+Sin pagos ni contratos dentro de la web por ahora.
+
+## Tecnología
+
+- [Next.js](https://nextjs.org) 15 (App Router, TypeScript).
+- [Supabase](https://supabase.com): base de datos Postgres y acceso por enlace mágico al correo.
+- Pensado para publicarse en [Vercel](https://vercel.com).
+
+## Probarla en local
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abre http://localhost:3000. Sin configurar Supabase, el catálogo usa las bandas de `src/data/bandas.json` y el panel de bandas está desactivado.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Conectar Supabase
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Crea un proyecto gratuito en Supabase.
+2. En el editor SQL, ejecuta en orden los archivos de `supabase/migrations/`.
+3. En *Authentication → URL Configuration*, añade `http://localhost:3000/auth/callback` (y la URL de producción) a las URLs de redirección.
+4. Copia `.env.example` a `.env.local` y rellena `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` (en *Project Settings → API*).
+5. `npm run dev` y entra en `/panel` para crear tu primera banda.
 
-## Learn More
+## Datos de bandas
 
-To learn more about Next.js, take a look at the following resources:
+`src/data/bandas.json` contiene 1.847 bandas (1.665 activas y 182 extintas) tomadas del directorio público de [Musicofrades](https://musicofrades.com/directorio-de-bandas/) el 20/11/2026: nombre, tipo, localidad, provincia, año, estado, hermandad, web y redes. Cada perfil enlaza a su ficha original. Teléfonos y correos no se importan: cada banda los añade al reclamar su perfil.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Para actualizarlas:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+python3 scripts/extraer_musicofrades.py /tmp/mc   # ~40 min, una petición cada 0,6 s
+python3 scripts/convertir_musicofrades.py /tmp/mc # regenera bandas.json y supabase/seed_bandas.sql
+```
 
-## Deploy on Vercel
+Con Supabase, ejecuta `supabase/seed_bandas.sql` después de las migraciones para cargar las bandas.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Modelo de datos
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `bandas`: perfil de cada banda; cada una pertenece a un usuario (`owner_id`).
+- `disponibilidad`: una fila por banda, fecha y franja con estado `libre` u `ocupado`. Si no hay fila, la franja está "sin confirmar".
+
+Las políticas de seguridad (RLS) dejan que cualquiera lea los perfiles y que solo cada banda edite los suyos.
+
+## Siguientes pasos
+
+- Cargar a mano 20 o 30 bandas reales de Granada, Málaga y Almería (con su permiso).
+- Calendario para fechas fuera de Semana Santa (glorias, Corpus, patronales).
+- Búsqueda por distancia, fotos y vídeo en el perfil.
+- Avisos a la hermandad cuando una banda quede libre en la fecha que busca.
