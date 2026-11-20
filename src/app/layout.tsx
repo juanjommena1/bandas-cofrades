@@ -19,9 +19,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body>
         <header className="cabecera">
           <div className="wrap">
-            <Link className="marca" href="/"><span className="marca-icono">BC</span>Bandas Cofrades</Link>
+            <Link className="marca" href="/"><span className="marca-icono">BC</span><span className="marca-texto">Bandas Cofrades</span></Link>
             <nav className="nav">
               <Link href="/">Catálogo</Link>
+              <Link href="/foro" className="nav-foro">Foro</Link>
               <Link href="/panel" className="destacado">Soy una banda</Link>
             </nav>
           </div>
