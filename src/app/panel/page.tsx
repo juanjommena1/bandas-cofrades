@@ -13,11 +13,13 @@ type Props = { searchParams: Promise<{ guardado?: string; error?: string }> };
 export default async function Panel({ searchParams }: Props) {
   if (modoDemo) {
     return (
-      <section className="caja">
-        <h1>Panel de tu banda</h1>
-        <p>En modo demostración el panel está desactivado. Para probarlo, configura Supabase siguiendo el README.</p>
-        <Link className="volver" href="/">← Volver al buscador</Link>
-      </section>
+      <div className="wrap pagina">
+        <section className="caja">
+          <h1>Panel de tu banda</h1>
+          <p>En modo demostración el panel está desactivado. Para probarlo, configura Supabase siguiendo el README.</p>
+          <Link className="boton sec" href="/">Volver al catálogo</Link>
+        </section>
+      </div>
     );
   }
 
@@ -32,7 +34,7 @@ export default async function Panel({ searchParams }: Props) {
   const { guardado, error } = await searchParams;
 
   return (
-    <>
+    <div className="wrap pagina">
       <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap", alignItems: "end" }}>
         <div>
           <h1>Panel de tu banda</h1>
@@ -41,12 +43,12 @@ export default async function Panel({ searchParams }: Props) {
         <form action={salir}><button className="boton sec" type="submit">Salir</button></form>
       </div>
 
-      <div className="perfil">
+      <div className="perfil-cuerpo" style={{ paddingBlock: 0 }}>
         {banda && (
           <section className="caja">
             <h2>Calendario Semana Santa 2027</h2>
             <CalendarioEditable bandaId={banda.id} disponibilidad={disp ?? []} />
-            <Link className="volver" href={`/bandas/${banda.slug}`}>Ver mi perfil público →</Link>
+            <Link className="boton sec" href={`/bandas/${banda.slug}`}>Ver mi perfil público →</Link>
           </section>
         )}
         <section className="caja">
@@ -77,12 +79,21 @@ export default async function Panel({ searchParams }: Props) {
               <label>Teléfono / WhatsApp<input name="telefono" type="tel" defaultValue={banda?.telefono ?? ""} /></label>
               <label>Correo de contacto<input name="email" type="email" defaultValue={banda?.email ?? ""} /></label>
             </div>
+            <div className="campos">
+              <label>Año de fundación<input name="ano_fundacion" type="number" min={1800} max={2100} defaultValue={banda?.ano_fundacion ?? ""} /></label>
+              <label>Página web<input name="web" defaultValue={banda?.web ?? ""} /></label>
+            </div>
+            <div className="campos">
+              <label>Instagram<input name="instagram" placeholder="@usuario" defaultValue={banda?.instagram ?? ""} /></label>
+              <label>Facebook<input name="facebook" defaultValue={banda?.facebook ?? ""} /></label>
+              <label>YouTube<input name="youtube" defaultValue={banda?.youtube ?? ""} /></label>
+            </div>
             <label>Repertorio<input name="repertorio" defaultValue={banda?.repertorio ?? ""} placeholder="Marchas clásicas, estilo..." /></label>
             <label>Presentación<textarea name="descripcion" rows={3} defaultValue={banda?.descripcion ?? ""} /></label>
             <button className="boton" type="submit">{banda ? "Guardar cambios" : "Crear perfil"}</button>
           </form>
         </section>
       </div>
-    </>
+    </div>
   );
 }

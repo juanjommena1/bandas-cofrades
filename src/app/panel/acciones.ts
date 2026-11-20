@@ -41,6 +41,11 @@ export async function guardarPerfil(formData: FormData) {
     email: txt(formData.get("email")),
     repertorio: txt(formData.get("repertorio")),
     descripcion: txt(formData.get("descripcion")),
+    ano_fundacion: num(formData.get("ano_fundacion")),
+    web: txt(formData.get("web")),
+    instagram: txt(formData.get("instagram")),
+    facebook: txt(formData.get("facebook")),
+    youtube: txt(formData.get("youtube")),
     actualizado_en: new Date().toISOString(),
   };
   const { data: existente } = await supabase.from("bandas").select("id").eq("owner_id", user.id).maybeSingle();

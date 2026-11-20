@@ -1,51 +1,98 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Calendario from "@/components/Calendario";
+import Icono from "@/components/Icono";
+import { iniciales } from "@/components/TarjetaBanda";
 import { obtenerBanda } from "@/lib/datos";
-import { TIPOS, nombreDia, precioTexto } from "@/lib/tipos";
+import { TIPOS, precioTexto, type Banda } from "@/lib/tipos";
 
-type Props = { params: Promise<{ slug: string }>; searchParams: Promise<{ fecha?: string }> };
+type Props = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Props) {
   const r = await obtenerBanda((await params).slug);
   return { title: r ? `${r.banda.nombre} · Bandas Cofrades` : "Banda no encontrada" };
 }
 
-export default async function PerfilBanda({ params, searchParams }: Props) {
+function enlaceRed(red: "instagram" | "facebook" | "youtube" | "web", valor: string) {
+  if (/^https?:\/\//.test(valor)) return valor;
+  const usuario = valor.replace(/^@/, "");
+  return {
+    instagram: `https://instagram.com/${usuario}`,
+    facebook: `https://facebook.com/${usuario}`,
+    youtube: usuario.startsWith("UC") ? `https://youtube.com/channel/${usuario}` : `https://youtube.com/@${usuario}`,
+    web: `https://${valor}`,
+  }[red];
+}
+
+const NOMBRE_RED = { instagram: "Instagram", facebook: "Facebook", youtube: "YouTube", web: "Página web" };
+
+export default async function PerfilBanda({ params }: Props) {
   const r = await obtenerBanda((await params).slug);
   if (!r) notFound();
   const { banda, disponibilidad } = r;
-  const { fecha } = await searchParams;
 
   const tel = banda.telefono?.replace(/\D/g, "");
-  const texto = `Hola, somos una hermandad y buscamos banda${fecha ? ` para el ${nombreDia(fecha)}` : ""}. ¿Tenéis disponibilidad?`;
+  const texto = "Hola, somos una hermandad y nos gustaría pediros información para una salida procesional.";
   const whatsapp = tel ? `https://wa.me/${tel.startsWith("34") ? tel : "34" + tel}?text=${encodeURIComponent(texto)}` : null;
+  const redes = (["instagram", "facebook", "youtube", "web"] as const).filter((x) => banda[x]);
+  const stats: [string, string | number | null][] = [
+    ["Fundada", banda.ano_fundacion],
+    ["Músicos", banda.musicos],
+    ["Precio orientativo", precioTexto(banda as Banda)],
+  ];
 
   return (
     <>
-      <Link className="volver" href={fecha ? `/?fecha=${fecha}` : "/"}>← Volver a resultados</Link>
-      <div className="perfil">
-        <section className="caja">
-          <div>
-            <h1>{banda.nombre}</h1>
-            <div className="meta">{TIPOS[banda.tipo]} · {banda.localidad} ({banda.provincia})</div>
+      <section className={`perfil-portada tipo-${banda.tipo}`}>
+        <div className="wrap">
+          <Link className="volver" href="/">← Volver al catálogo</Link>
+          <div className="perfil-cabeza">
+            <span className="monograma">{iniciales(banda.nombre)}</span>
+            <div>
+              <h1>{banda.nombre}</h1>
+              <p>{TIPOS[banda.tipo]} · <Icono nombre="pin" tam={15} />{banda.localidad}, {banda.provincia}</p>
+            </div>
           </div>
-          {banda.descripcion && <p style={{ margin: 0 }}>{banda.descripcion}</p>}
-          <h2>Disponibilidad Semana Santa 2027</h2>
-          <Calendario disponibilidad={disponibilidad} />
-        </section>
+        </div>
+      </section>
+
+      <div className="wrap perfil-cuerpo">
+        <div style={{ display: "grid", gap: 20, minWidth: 0 }}>
+          <section className="caja">
+            <h2>Sobre la banda</h2>
+            <div className="stats">
+              {stats.filter(([, v]) => v != null).map(([k, v]) => (
+                <div key={k} className="stat"><span>{k}</span><strong>{v}</strong></div>
+              ))}
+            </div>
+            {banda.descripcion && <p style={{ margin: 0 }}>{banda.descripcion}</p>}
+            {banda.repertorio && <p style={{ margin: 0 }}><strong>Repertorio:</strong> {banda.repertorio}</p>}
+          </section>
+          <section className="caja">
+            <h2>Disponibilidad Semana Santa 2027</h2>
+            <p className="nota">Muy pronto las bandas podrán mantener aquí su calendario al día.</p>
+            <Calendario disponibilidad={disponibilidad} />
+          </section>
+        </div>
+
         <aside className="caja">
-          <h2>Datos</h2>
-          <dl>
-            {banda.musicos && <><dt>Músicos</dt><dd>{banda.musicos}</dd></>}
-            {precioTexto(banda) && <><dt>Precio orientativo</dt><dd>{precioTexto(banda)}</dd></>}
-            {banda.repertorio && <><dt>Repertorio</dt><dd>{banda.repertorio}</dd></>}
-          </dl>
           <h2>Contactar</h2>
-          {whatsapp && <a className="boton" href={whatsapp} target="_blank" rel="noopener noreferrer">Escribir por WhatsApp</a>}
-          {banda.telefono && <a className="boton sec" href={`tel:${banda.telefono}`}>Llamar: {banda.telefono}</a>}
-          {banda.email && <a className="boton sec" href={`mailto:${banda.email}`}>{banda.email}</a>}
+          {whatsapp && <a className="boton whatsapp" href={whatsapp} target="_blank" rel="noopener noreferrer"><Icono nombre="whatsapp" />Escribir por WhatsApp</a>}
+          {banda.telefono && <a className="boton sec" href={`tel:${banda.telefono}`}><Icono nombre="telefono" />{banda.telefono}</a>}
+          {banda.email && <a className="boton sec" href={`mailto:${banda.email}`}><Icono nombre="correo" />{banda.email}</a>}
           {!banda.telefono && !banda.email && <p className="nota">Esta banda aún no ha añadido datos de contacto.</p>}
+          {redes.length > 0 && (
+            <>
+              <h2>Redes</h2>
+              <div className="lista-redes">
+                {redes.map((x) => (
+                  <a key={x} href={enlaceRed(x, banda[x]!)} target="_blank" rel="noopener noreferrer">
+                    <Icono nombre={x} />{NOMBRE_RED[x]}
+                  </a>
+                ))}
+              </div>
+            </>
+          )}
         </aside>
       </div>
     </>

@@ -16,6 +16,11 @@ export interface Banda {
   email: string | null;
   repertorio: string | null;
   descripcion: string | null;
+  ano_fundacion: number | null;
+  web: string | null;
+  instagram: string | null;
+  facebook: string | null;
+  youtube: string | null;
 }
 
 export interface Disponibilidad {

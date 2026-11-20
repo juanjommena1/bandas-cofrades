@@ -4,8 +4,8 @@ Web para que las hermandades encuentren banda libre para su salida procesional. 
 
 ## Qué hace esta primera versión
 
-- **Buscador** (`/`): por día de Semana Santa 2027 o cualquier fecha, franja, provincia y tipo de banda. Primero salen las bandas que han confirmado que están libres, luego las que no han confirmado y al final las ocupadas.
-- **Perfil público de banda** (`/bandas/[slug]`): datos, precio orientativo, repertorio, calendario y botón para escribir por WhatsApp o llamar.
+- **Catálogo** (`/`): rejilla de bandas con búsqueda por nombre o localidad, provincia y tipo de formación.
+- **Perfil público de banda** (`/bandas/[slug]`): año de fundación, músicos, precio orientativo, repertorio, redes sociales, calendario y botón para escribir por WhatsApp o llamar.
 - **Panel de la banda** (`/panel`): la banda entra con un enlace a su correo, crea o edita su perfil y marca su calendario pulsando cada franja.
 
 Sin pagos ni contratos dentro de la web por ahora.
@@ -28,7 +28,7 @@ Abre http://localhost:3000. Sin configurar Supabase, la web funciona en **modo d
 ## Conectar Supabase
 
 1. Crea un proyecto gratuito en Supabase.
-2. En el editor SQL, ejecuta `supabase/migrations/0001_init.sql`.
+2. En el editor SQL, ejecuta en orden los archivos de `supabase/migrations/`.
 3. En *Authentication → URL Configuration*, añade `http://localhost:3000/auth/callback` (y la URL de producción) a las URLs de redirección.
 4. Copia `.env.example` a `.env.local` y rellena `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` (en *Project Settings → API*).
 5. `npm run dev` y entra en `/panel` para crear tu primera banda.

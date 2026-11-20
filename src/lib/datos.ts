@@ -73,3 +73,33 @@ export async function obtenerBanda(slug: string): Promise<{ banda: Banda; dispon
   const { data: disponibilidad } = await supabase.from("disponibilidad").select("*").eq("banda_id", banda.id);
   return { banda, disponibilidad: disponibilidad ?? [] };
 }
+
+export interface FiltrosCatalogo {
+  q?: string;
+  provincia?: string;
+  tipo?: TipoBanda;
+}
+
+const normalizar = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+/** Catálogo de bandas con búsqueda por texto, provincia y tipo. */
+export async function listarBandas(f: FiltrosCatalogo): Promise<Banda[]> {
+  let bandas: Banda[];
+  if (modoDemo) {
+    bandas = demoBandas;
+  } else {
+    const supabase = await crearClienteServidor();
+    let q = supabase.from("bandas").select("*").order("nombre").limit(500);
+    if (f.provincia) q = q.eq("provincia", f.provincia);
+    if (f.tipo) q = q.eq("tipo", f.tipo);
+    if (f.q) q = q.or(`nombre.ilike.%${f.q.replace(/[%,()]/g, "")}%,localidad.ilike.%${f.q.replace(/[%,()]/g, "")}%`);
+    const { data, error } = await q;
+    if (error) throw error;
+    bandas = data ?? [];
+  }
+  const texto = f.q ? normalizar(f.q) : "";
+  return bandas
+    .filter((b) => (!f.provincia || b.provincia === f.provincia) && (!f.tipo || b.tipo === f.tipo))
+    .filter((b) => !texto || normalizar(`${b.nombre} ${b.localidad}`).includes(texto))
+    .sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
+}

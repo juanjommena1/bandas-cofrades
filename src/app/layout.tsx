@@ -5,7 +5,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Bandas Cofrades",
-  description: "Encuentra banda libre para tu salida procesional: perfiles y disponibilidad de bandas de cornetas y tambores, agrupaciones musicales y bandas de música.",
+  description: "Catálogo de bandas de cornetas y tambores, agrupaciones musicales y bandas de música para hermandades y cofradías.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -14,24 +14,24 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Source+Sans+3:wght@400;600;700&display=swap" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" />
       </head>
       <body>
         <header className="cabecera">
           <div className="wrap">
-            <Link className="marca" href="/">Bandas <span>Cofrades</span></Link>
+            <Link className="marca" href="/"><span className="marca-icono">BC</span>Bandas Cofrades</Link>
             <nav className="nav">
-              <Link href="/">Buscar banda</Link>
-              <Link href="/panel">Soy una banda</Link>
+              <Link href="/">Catálogo</Link>
+              <Link href="/panel" className="destacado">Soy una banda</Link>
             </nav>
           </div>
         </header>
         {modoDemo && (
           <div className="aviso"><div className="wrap">
-            Modo demostración: se muestran <strong>bandas de ejemplo</strong> inventadas. Configura Supabase para usar datos reales.
+            Modo demostración: se muestran <strong>bandas de ejemplo</strong> inventadas.
           </div></div>
         )}
-        <main><div className="wrap">{children}</div></main>
+        <main>{children}</main>
       </body>
     </html>
   );

@@ -22,6 +22,7 @@ type Props = { searchParams: Promise<{ enviado?: string; error?: string }> };
 export default async function Login({ searchParams }: Props) {
   const { enviado, error } = await searchParams;
   return (
+    <div className="wrap pagina">
     <section className="caja" style={{ maxWidth: 480 }}>
       <h1>Entra en el panel de tu banda</h1>
       <p className="nota">Te enviamos un enlace a tu correo. Sin contraseñas.</p>
@@ -37,5 +38,6 @@ export default async function Login({ searchParams }: Props) {
         </form>
       )}
     </section>
+    </div>
   );
 }
