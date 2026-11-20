@@ -3,7 +3,9 @@ import { notFound } from "next/navigation";
 import Calendario from "@/components/Calendario";
 import Icono from "@/components/Icono";
 import { Escudo } from "@/components/TarjetaBanda";
+import ListaTemas from "@/components/foro/ListaTemas";
 import { obtenerBanda } from "@/lib/datos";
+import { listarTemas } from "@/lib/foro";
 import { TIPOS, precioTexto, type Banda } from "@/lib/tipos";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -30,6 +32,7 @@ export default async function PerfilBanda({ params }: Props) {
   const r = await obtenerBanda((await params).slug);
   if (!r) notFound();
   const { banda, disponibilidad } = r;
+  const temasForo = await listarTemas(banda.slug, 5);
 
   const tel = banda.telefono?.replace(/\D/g, "");
   const texto = "Hola, somos una hermandad y nos gustaría pediros información para una salida procesional.";
@@ -77,6 +80,13 @@ export default async function PerfilBanda({ params }: Props) {
               <Calendario disponibilidad={disponibilidad} />
             </section>
           )}
+          <section className="caja">
+            <div className="barra">
+              <h2>Foro de la banda</h2>
+              <Link className="boton sec" href={`/bandas/${banda.slug}/foro`}>Ir al foro →</Link>
+            </div>
+            <ListaTemas temas={temasForo} vacio="Nadie ha escrito todavía. Sé el primero en preguntar o comentar algo sobre esta banda." />
+          </section>
         </div>
 
         <aside className="caja">
