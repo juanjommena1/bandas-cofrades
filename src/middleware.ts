@@ -23,5 +23,6 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/panel/:path*", "/auth/:path*", "/login", "/cuenta", "/foro/:path*", "/bandas/:slug/foro"],
+  // Todas las páginas menos archivos estáticos e imágenes: así la sesión se renueva en cualquier página.
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|escudos/|.*\\.(?:png|jpg|jpeg|svg|webp|ico)$).*)"],
 };

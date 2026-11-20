@@ -56,6 +56,8 @@ Las políticas de seguridad (RLS) dejan que cualquiera lea los perfiles y que so
 
 ## Foro
 
+**Acceso:** con correo y contraseña (pestañas «Entrar» y «Crear cuenta» en `/login`) o con enlace al correo. Para que crear cuenta no envíe ningún correo, en Supabase desactiva *Authentication → Sign In / Providers → Email → Confirm email*. El enlace al correo usa el servidor de correo de Supabase, limitado a unos pocos envíos por hora.
+
 - **Foro general** (`/foro`) y **foro de cada banda** (`/bandas/[slug]/foro`, con los últimos temas en el perfil).
 - Para escribir hay que entrar con el correo (mismo enlace mágico que el panel) y elegir un **apodo**; el correo nunca se muestra.
 - **Moderación básica** (`supabase/migrations/0004_foro.sql`):

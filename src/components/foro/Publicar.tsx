@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { SesionForo } from "@/lib/foro";
 import { modoDemo } from "@/lib/supabase/config";
-import { crearTema, responder } from "@/app/foro/acciones";
+import { crearTema, responder, salirForo } from "@/app/foro/acciones";
 
 /**
  * Muestra el formulario solo si el usuario puede publicar; si no, le dice qué le falta
@@ -13,7 +13,7 @@ function Acceso({ sesion, volverA, children }: { sesion: SesionForo; volverA: st
     return (
       <p className="nota">
         <Link className="boton sec" href={`/login?next=${encodeURIComponent(volverA)}`}>Entrar para participar</Link>
-        {" "}Solo necesitas tu correo, sin contraseñas.
+        {" "}Crea una cuenta con tu correo en un momento.
       </p>
     );
   }
@@ -60,5 +60,22 @@ export function Responder({ sesion, temaId, cerrado }: { sesion: SesionForo; tem
         </form>
       </Acceso>
     </section>
+  );
+}
+
+/** "Conectado como X · Cambiar apodo · Salir", o enlace para entrar. */
+export function BarraSesion({ sesion, volverA }: { sesion: SesionForo; volverA: string }) {
+  if (modoDemo) return null;
+  if (!sesion.userId) {
+    return <p className="nota barra-sesion"><Link href={`/login?next=${encodeURIComponent(volverA)}`}>Entrar</Link> para escribir en el foro.</p>;
+  }
+  return (
+    <div className="nota barra-sesion">
+      {sesion.perfil ? <>Conectado como <strong>{sesion.perfil.apodo}</strong></> : "Conectado"}
+      {" · "}
+      <Link href={`/cuenta?next=${encodeURIComponent(volverA)}`}>{sesion.perfil ? "Cambiar apodo" : "Elegir apodo"}</Link>
+      {" · "}
+      <form action={salirForo} style={{ display: "inline" }}><button type="submit" className="enlace">Salir</button></form>
+    </div>
   );
 }

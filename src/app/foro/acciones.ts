@@ -121,3 +121,9 @@ export async function bloquearUsuario(formData: FormData) {
   revalidatePath(ruta);
   redirect(conAviso(ruta, "ok", bloquear ? "bloqueado" : "desbloqueado"));
 }
+
+export async function salirForo() {
+  const supabase = await crearClienteServidor();
+  await supabase.auth.signOut();
+  redirect("/foro");
+}
